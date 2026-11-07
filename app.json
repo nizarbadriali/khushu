@@ -1,0 +1,122 @@
+{
+  "expo": {
+    "name": "Kushu",
+    "slug": "kushu",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "kushu",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#FAF8F3",
+    "android": {
+      "package": "com.salahlock.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#064635",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.USE_EXACT_ALARM",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.VIBRATE"
+      ],
+      "predictiveBackGestureEnabled": false,
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#064635",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 120
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#075E4A",
+          "sounds": [
+            "./assets/audio/adhan_short.wav",
+            "./assets/audio/chime.wav"
+          ]
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Kushu uses your location to calculate accurate prayer times."
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false
+        }
+      ],
+      "expo-font",
+      "expo-dev-client",
+      "expo-asset",
+      [
+        "expo-widgets",
+        {
+          "groupIdentifier": "group.com.kushu.app",
+          "widgets": [
+            {
+              "name": "NextPrayer",
+              "displayName": "Next Prayer",
+              "description": "The next prayer and how long until it begins.",
+              "ios": {
+                "supportedFamilies": [
+                  "systemSmall"
+                ],
+                "initialLayout": "src/widgets/index.tsx"
+              },
+              "android": null
+            },
+            {
+              "name": "TodaysPrayers",
+              "displayName": "Today's Prayers",
+              "description": "Today's five prayers and which you have confirmed.",
+              "ios": {
+                "supportedFamilies": [
+                  "systemMedium"
+                ],
+                "initialLayout": "src/widgets/index.tsx"
+              },
+              "android": null
+            },
+            {
+              "name": "PrayerDashboard",
+              "displayName": "Prayer Dashboard",
+              "description": "The next prayer, a countdown and your daily progress.",
+              "ios": {
+                "supportedFamilies": [
+                  "systemLarge"
+                ],
+                "initialLayout": "src/widgets/index.tsx"
+              },
+              "android": null
+            }
+          ]
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "ios": {
+      "bundleIdentifier": "com.kushu.app"
+    }
+  }
+}

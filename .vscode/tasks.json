@@ -1,0 +1,14 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Kushu: Web Preview Server",
+      "type": "shell",
+      "command": "npx expo start --web --port 8081",
+      "options": { "env": { "BROWSER": "none" } },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "kushu" }
+    }
+  ]
+}

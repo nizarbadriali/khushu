@@ -1,0 +1,299 @@
+<!doctype html>
+<!--
+  Development-only preview frame. It embeds the real running Expo Web app in a fixed
+  393 x 852 viewport. It is not part of the mobile app, and it is not an iOS simulator.
+  Open: http://localhost:8081/iphone-preview.html
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kushu iPhone Preview</title>
+    <style>
+      :root {
+        --w: 393px;
+        --h: 852px;
+        --bezel: 11px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #14181a;
+        font: 12px/1.4 system-ui, -apple-system, 'Segoe UI', sans-serif;
+      }
+      #stage {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      /* Scaling this wrapper shrinks the picture; the iframe stays 393 x 852 inside. */
+      #device {
+        position: relative;
+        flex: none;
+        width: calc(var(--w) + var(--bezel) * 2);
+        height: calc(var(--h) + var(--bezel) * 2);
+        padding: var(--bezel);
+        border-radius: 66px;
+        background: #050607;
+        box-shadow:
+          0 0 0 1.5px #3a3f42,
+          0 24px 60px rgba(0, 0, 0, 0.55);
+        transform-origin: center;
+      }
+      #screen {
+        position: relative;
+        width: var(--w);
+        height: var(--h);
+        overflow: hidden;
+        border-radius: 55px;
+        background: #faf8f3;
+      }
+      iframe {
+        color-scheme: light;
+        display: block;
+        width: var(--w);
+        height: var(--h);
+        border: 0;
+      }
+      /* Decoration must never swallow a click meant for the app. */
+      #island,
+      #home {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        pointer-events: none;
+      }
+      #island {
+        top: 11px;
+        width: 126px;
+        height: 37px;
+        border-radius: 19px;
+        background: #000;
+      }
+      #home {
+        bottom: 8px;
+        width: 139px;
+        height: 5px;
+        border-radius: 3px;
+        background: #fff;
+        mix-blend-mode: difference;
+        opacity: 0.55;
+      }
+      /* The simulated views draw their own island, which changes shape. */
+      body.os-view #island {
+        display: none;
+      }
+      #modes {
+        position: fixed;
+        top: 8px;
+        left: 0;
+        right: 0;
+        z-index: 2;
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+      }
+      #modes button {
+        min-height: 30px;
+        padding: 0 12px;
+        border: 1px solid #3a3f42;
+        border-radius: 8px;
+        font: 600 12px/1 system-ui, -apple-system, 'Segoe UI', sans-serif;
+        color: #c5ccce;
+        background: #1f2528;
+        cursor: pointer;
+      }
+      #modes button[aria-pressed='true'] {
+        color: #06211b;
+        border-color: #d6b66f;
+        background: #d6b66f;
+      }
+      #note {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 4px;
+        text-align: center;
+        color: #8b9396;
+        pointer-events: none;
+      }
+      #offline {
+        position: absolute;
+        inset: 0;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 32px;
+        text-align: center;
+        font-size: 15px;
+        color: #faf8f3;
+        background: #064635;
+      }
+      #offline code {
+        padding: 4px 8px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.14);
+      }
+      body.offline #offline {
+        display: flex;
+      }
+      #build-error {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        padding: 66px 18px 44px;
+        color: #f4f1ea;
+        background: #1a1012;
+      }
+      #build-error strong {
+        font-size: 17px;
+        color: #ff8f85;
+      }
+      #build-error pre {
+        flex: 1;
+        margin: 0;
+        overflow: auto;
+        font: 11px/1.5 Consolas, Menlo, monospace;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      body.build-error #build-error {
+        display: flex;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="modes" role="group" aria-label="Preview view">
+      <button type="button" data-mode="app" aria-pressed="true">App</button>
+      <button type="button" data-mode="home" aria-pressed="false">Home Screen</button>
+      <button type="button" data-mode="lock" aria-pressed="false">Lock Screen</button>
+    </div>
+    <div id="stage">
+      <div id="device">
+        <div id="screen">
+          <iframe id="app" src="/" title="Kushu app" allow="geolocation; autoplay"></iframe>
+          <div id="island"></div>
+          <div id="home"></div>
+          <div id="offline">
+            <strong>Dev server stopped</strong>
+            <span>Start it again and this reconnects by itself:</span>
+            <code>npm run preview</code>
+          </div>
+          <div id="build-error">
+            <strong>Bundling failed</strong>
+            <span>Fix the code and save. This clears by itself.</span>
+            <pre id="build-message"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="note">Web preview at iPhone size. Not an iOS simulator.</div>
+
+    <script>
+      const device = document.getElementById('device');
+      const frame = document.getElementById('app');
+      const OUTER_W = 393 + 22;
+      const OUTER_H = 852 + 22;
+      const MARGIN = 24;
+      const TOOLBAR = 46;
+
+      function fit() {
+        const scale = Math.min(
+          1,
+          (innerWidth - MARGIN) / OUTER_W,
+          (innerHeight - TOOLBAR - MARGIN) / OUTER_H,
+        );
+        device.style.transform = `scale(${scale})`;
+      }
+      addEventListener('resize', fit);
+      fit();
+      document.getElementById('stage').style.top = `${TOOLBAR - 8}px`;
+
+      // The app reads this when it loads, so a reload keeps the chosen view.
+      window.kushuPreviewMode = 'app';
+      window.kushuSetPreviewMode = (mode) => {
+        window.kushuPreviewMode = mode;
+        document.body.classList.toggle('os-view', mode !== 'app');
+        document.querySelectorAll('#modes button').forEach((b) => {
+          b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
+        });
+        frame.contentWindow?.postMessage({ kushuPreviewMode: mode }, location.origin);
+      };
+      document.querySelectorAll('#modes button').forEach((b) => {
+        b.addEventListener('click', () => window.kushuSetPreviewMode(b.dataset.mode));
+      });
+
+      // Expo's in-app overlay reports a syntax error as "Unknown", but Metro answers the
+      // bundle request with the full message and code frame, so show that instead.
+      let bundleUrl = null;
+      let watchingBuild = null;
+
+      async function checkBuild() {
+        if (!bundleUrl) return;
+        let response;
+        try {
+          response = await fetch(bundleUrl, { cache: 'no-store' });
+        } catch {
+          return; // A stopped server is reported by the status check below.
+        }
+        const failed = !response.ok;
+        const recovered = !failed && document.body.classList.contains('build-error');
+        document.body.classList.toggle('build-error', failed);
+        if (failed) {
+          const error = await response.json().catch(() => null);
+          document.getElementById('build-message').textContent =
+            error?.message ?? `The bundle request failed with HTTP ${response.status}.`;
+          watchingBuild ??= setInterval(checkBuild, 2000);
+        } else {
+          response.body?.cancel();
+          clearInterval(watchingBuild);
+          watchingBuild = null;
+          // Expo's overlay outlives the fix, so start clean on the same route.
+          if (recovered) frame.contentWindow.location.reload();
+        }
+      }
+
+      frame.addEventListener('load', () => {
+        try {
+          const page = frame.contentDocument;
+          // Desktop scrollbars take width from the layout. Phones overlay them, so match that.
+          const style = page.createElement('style');
+          style.textContent = '::-webkit-scrollbar{display:none}*{scrollbar-width:none}';
+          page.head.appendChild(style);
+
+          bundleUrl = page.querySelector('script[src*="entry.bundle"]')?.src ?? null;
+          frame.contentWindow.addEventListener('error', checkBuild);
+          checkBuild();
+        } catch {
+          // The server is down and the frame holds a browser error page.
+        }
+      });
+
+      // Fast Refresh runs inside the iframe. This only covers the server going away.
+      let offline = false;
+      setInterval(async () => {
+        let up = false;
+        try {
+          up = (await fetch('/status', { cache: 'no-store' })).ok;
+        } catch {
+          up = false;
+        }
+        if (up && offline) frame.src = '/';
+        offline = !up;
+        document.body.classList.toggle('offline', offline);
+      }, 3000);
+    </script>
+  </body>
+</html>
